@@ -1,6 +1,7 @@
 package server
 
 import (
+	blogv1 "github.com/SmartNMS/smart-service/demo/api/blog/v1"
 	v1 "github.com/SmartNMS/smart-service/demo/api/helloworld/v1"
 	"github.com/SmartNMS/smart-service/demo/internal/conf"
 	"github.com/SmartNMS/smart-service/demo/internal/service"
@@ -11,14 +12,15 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // NewHTTPServer new a HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, blog *service.BlogService, tracer trace.TracerProvider, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
-			tracing.Server(),
+			tracing.Server(tracing.WithTracerProvider(tracer)),
 			logging.Server(logger),
 			metrics.Server(),
 			validate.Validator(),
@@ -35,5 +37,6 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 	}
 	srv := http.NewServer(opts...)
 	v1.RegisterGreeterHTTPServer(srv, greeter)
+	blogv1.RegisterBlogHTTPServer(srv, blog)
 	return srv
 }

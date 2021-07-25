@@ -1,6 +1,7 @@
 package server
 
 import (
+	blogv1 "github.com/SmartNMS/smart-service/demo/api/blog/v1"
 	v1 "github.com/SmartNMS/smart-service/demo/api/helloworld/v1"
 	"github.com/SmartNMS/smart-service/demo/internal/conf"
 	"github.com/SmartNMS/smart-service/demo/internal/service"
@@ -11,14 +12,15 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, blog *service.BlogService, tracer trace.TracerProvider, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
-			tracing.Server(),
+			tracing.Server(tracing.WithTracerProvider(tracer)),
 			logging.Server(logger),
 			metrics.Server(),
 			validate.Validator(),
@@ -35,5 +37,6 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 	}
 	srv := grpc.NewServer(opts...)
 	v1.RegisterGreeterServer(srv, greeter)
+	blogv1.RegisterBlogServer(srv, blog)
 	return srv
 }

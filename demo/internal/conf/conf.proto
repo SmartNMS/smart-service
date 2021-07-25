@@ -1,25 +1,26 @@
 syntax = "proto3";
-package kratos.api;
+package conf;
 
 option go_package = "github.com/SmartNMS/smart-service/demo/internal/conf;conf";
 
 import "google/protobuf/duration.proto";
 
 message Bootstrap {
-  Server server = 1;
-  Data data = 2;
+  Trace  trace = 1;
+  Server server = 2;
+  Data data = 3;
 }
 
 message Server {
   message HTTP {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration timeout = 3;
+      string network = 1;
+      string addr = 2;
+      google.protobuf.Duration timeout = 3;
   }
   message GRPC {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration timeout = 3;
+      string network = 1;
+      string addr = 2;
+      google.protobuf.Duration timeout = 3;
   }
   HTTP http = 1;
   GRPC grpc = 2;
@@ -27,15 +28,22 @@ message Server {
 
 message Data {
   message Database {
-    string driver = 1;
-    string source = 2;
+      string driver = 1;
+      string source = 2;
   }
   message Redis {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration read_timeout = 3;
-    google.protobuf.Duration write_timeout = 4;
+      string network = 1;
+      string addr = 2;
+      string password = 3;
+      int32 db = 4;
+      google.protobuf.Duration dial_timeout = 5;
+      google.protobuf.Duration read_timeout = 6;
+      google.protobuf.Duration write_timeout = 7;
   }
   Database database = 1;
   Redis redis = 2;
+}
+
+message Trace {
+  string endpoint = 1;
 }
