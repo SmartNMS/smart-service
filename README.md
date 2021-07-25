@@ -63,38 +63,44 @@ go get -u github.com/golang/protobuf/protoc-gen-go
 
 ## Quick Start with kratos
 
-- Project Creation
-
-```
+```bash
+# mkdir demo
 # create project's layout
-kratos new helloworld
-
-cd helloworld
-# pull dependencies
+kratos new demo
+cd demo
+# modify go.mod module if needed, then pull dependencies
 go mod download
-# generate proto template
-kratos proto add api/helloworld/demo.proto
-# generate proto code
-kratos proto client api/helloworld/demo.proto
-# generate server template
-kratos proto server api/helloworld/demo.proto -t internal/service
-```
-
-- Compilation and Running
-```bash
-# generate all codes of proto and wire etc.
-go generate ./...
-
-# run the application
-kratos run
-```
-
-- Try it out
-```bash
+go mod tidy
+# init enviroment
+make init
+# generate all codes
+make all
+# build
+make build
+# run
+make run
+# or run
+# ./bin/helloworld -conf ./configs
+# try it out now
 curl 'http://127.0.0.1:8000/helloworld/kratos'
-
-The response should be
+# The response should be
 {
   "message": "Hello kratos"
 }
+```
+
+
+## Create new service with kratos
+```bash
+# generate proto template
+kratos proto add api/blog/v1/blog.proto
+# modify the proto template if needed
+# generate proto code
+kratos proto client api/blog/v1/blog.proto
+# if no http created, then try following cmd
+# kratos proto client api/blog/v1/blog.proto --go-http_opt=omitempty=false
+# generate all new codes
+make all
+# generate server template
+#kratos proto server api/blog/v1/blog.proto -t internal/service
 ```
